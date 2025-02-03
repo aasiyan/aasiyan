@@ -1,0 +1,18 @@
+/* .video-card{
+    height: 500px;
+} */
+.video-margin {
+  margin-top: 100px;
+}
+.video-dec {
+  font-size: 15px;
+  font-weight: 600;
+}
+.video-head {
+  margin-bottom: -80px;
+}
+@media only screen and (max-width: 600px) {
+  .video-card {
+    height: 280px;
+  }
+}
