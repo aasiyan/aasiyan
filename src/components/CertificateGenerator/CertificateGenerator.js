@@ -2,16 +2,19 @@ import React, { useState, useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import "./CertificateGenerator.css";
-import certificateImg from "../assets/certificate.png";
+import certificateImg from "../assets/certificate-nocontent.png";
 
 const CertificateGenerator = () => {
   const [details, setDetails] = useState({
     name: "",
+    sodo: "",
+    parentsname: "",
     photo: "",
     field: "",
     certificateCode: "",
     dateOfIssue: "",
-  });
+    category: "", // Added for select field
+  }); 
   const certificateRef = useRef();
 
   const handleChange = (e) => {
@@ -28,14 +31,23 @@ const CertificateGenerator = () => {
     reader.readAsDataURL(file);
   };
 
-  const formatDate = (date) => {
-    const [year, month, day] = date.split("-");
-    return `${day}-${month}-${year}`;
-  };
+  // const formatDate = (date) => {
+  //   const [year, month, day] = date.split("-");
+  //   return `${day}-${month}-${year}`;
+  // };
 
   const validateForm = () => {
-    const { name, photo, field, certificateCode, dateOfIssue } = details;
-    return name && photo && field && certificateCode && dateOfIssue;
+    const { name, photo, field, certificateCode, category, sodo, parentsname } =
+      details;
+    return (
+      name &&
+      photo &&
+      field &&
+      certificateCode &&
+      category &&
+      sodo &&
+      parentsname
+    );
   };
 
   const handleDownloadPDF = () => {
@@ -51,42 +63,48 @@ const CertificateGenerator = () => {
         orientation: "portrait",
         unit: "px",
         format: [595, 842],
-        // margin: "0px",
       });
       pdf.addImage(imgData, "PNG", 0, 0, 595, 842);
       pdf.save(`${details.name}_certificate.pdf`);
     });
   };
 
-  const handlePrint = () => {
-    if (!validateForm()) {
-      alert("Please fill out all fields before printing the certificate.");
-      return;
-    }
-
-    const printContent = certificateRef.current;
-    const WinPrint = window.open("", "", "width=900,height=650");
-    WinPrint.document.write(printContent.innerHTML);
-    WinPrint.document.close();
-    WinPrint.focus();
-    WinPrint.print();
-    WinPrint.close();
-  };
-
   return (
-    <div className="cer-container">
-      <form className="form-1">
-        <label className="cer-label">
+    <div className="container">
+      <h1>Aasiyan Book of World Records</h1>
+      <form className="form">
+        <label className="label">
           Name:
+          <br />
+          <select
+            name="sodo"
+            className="input"
+            value={details.sodo}
+            onChange={handleChange}
+          >
+            <option value="">Select</option>
+            <option value="S/O">S/O</option>
+            <option value="D/O">D/O</option>
+          </select>
           <input
-            className="cer-input form-control form-control-lg"
+            className="input"
             type="text"
             name="name"
             value={details.name}
             onChange={handleChange}
           />
         </label>
-        <label className="cer-label">
+        <label className="lable">
+          <b>Parents Name</b>
+          <input
+            className="input"
+            type="text"
+            name="parentsname"
+            value={details.parentsname}
+            onChange={handleChange}
+          />
+        </label>
+        <label className="label">
           Photo:
           <input
             className="input"
@@ -95,86 +113,92 @@ const CertificateGenerator = () => {
             onChange={handlePhotoUpload}
           />
         </label>
-        <label className="cer-label">
-          Field:
-          <br />
+        <label className="label">
+          Category:
+          <select
+            className="input"
+            name="category"
+            value={details.category}
+            onChange={handleChange}
+          >
+            <option value="">Select Category</option>
+            <option value="Bharathanatyam">Bharathanatyam</option>
+            <option value="Silambam">Silambam</option>
+            <option value="Yoga">Yoga</option>
+            <option value="Nattupura Kalaigal">Nattupura Kalaigal</option>
+            <option value="Themmangu Pattu">Themmangu Pattu</option>
+          </select>
+        </label>
+        <label className="label">
+          Aadhar No:
           <input
-            className="input form-control form-control-lg"
+            className="input"
             type="text"
             name="field"
             value={details.field}
             onChange={handleChange}
           />
         </label>
-        <label className="cer-label">
+        <label className="label">
           Certificate Code:
-          <br />
           <input
-            className="input form-control form-control-lg"
+            className="input"
             type="text"
             name="certificateCode"
             value={details.certificateCode}
             onChange={handleChange}
           />
         </label>
-        <label className="cer-label">
-          Date of Issue:
-          <br />
-          <input
-            className="input"
-            type="date"
-            name="dateOfIssue"
-            value={details.dateOfIssue}
-            onChange={handleChange}
-          />
-        </label>
       </form>
+
       <div ref={certificateRef} className="certificate">
         <img
-          src={certificateImg} // Replace with your certificate background image path
+          src={certificateImg}
           alt="Certificate Background"
           className="certificate-image"
         />
         <div className="certificate-content">
-          <div>
-            {details.photo && (
-              <img
-                src={details.photo}
-                alt="Profile"
-                className="certificate-photo"
-              />
-            )}
-          </div>
+          {details.photo && (
+            <img
+              src={details.photo}
+              alt="Profile"
+              className="certificate-photo"
+            />
+          )}
         </div>
         <div className="certificate-content">
-          <div className="certificate-text-name">{details.name}</div>
+          <div className="certificate-text-name">M/S. {details.name}</div>
         </div>
         <div className="certificate-content">
           <div className="certificate-text-field">{details.field}</div>
         </div>
         <div className="certificate-content">
-          <div className="certificate-text-code">{details.certificateCode}</div>
-        </div>
-        <div className="certificate-content">
-          <div className="certificate-text-date">
-            {details.dateOfIssue && formatDate(details.dateOfIssue)}
+          <div className="certificate-text-content">
+            {details.sodo} {details.parentsname}, has participated in the event
+            entitled{" "}
+            <span className="span-category"> ‘{details.category}’</span> during
+            the outstanding World Record attempt for a{" "}
+            <span className="span-content">
+              ‘Continuously Performed Program’
+            </span>{" "}
+            , presented by Aasiyan Book of World Records and organized by Sri
+            Kalalaya Dance Academy. This record-breaking event was held on 24
+            <sup className="th-super">th</sup> November 2024 at Kattikulam
+            Soottukkole Mayandi Foundation, Thiruparankundram.
           </div>
         </div>
+        <div className="certificate-content">
+          <div className="certificate-text-code">
+            AABWR{details.certificateCode}
+          </div>
+        </div>
+        {/* <div className="certificate-content">
+          <div className="certificate-text-category">{details.category}</div>
+        </div> */}
       </div>
-      <button className="cer-button" onClick={handleDownloadPDF}>
+      <button className="button" onClick={handleDownloadPDF}>
         Download PDF
       </button>
-      <button className="cer-button" onClick={handlePrint}>
-        Print
-      </button>
-      <div>
-        <button
-          className="cer-button"
-          onClick={() => (window.location.href = "/website")}
-        >
-          Logout
-        </button>
-      </div>
     </div>
   );
 };
