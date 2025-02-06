@@ -23,7 +23,9 @@ const CertificateHome = () => {
       .from("registrationmaster_duplicate")
       .select(
         "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster_duplicate(eventname),certificatestatus"
-      );
+      )
+      .eq("certificatestatus", 0)
+      .order("name", { ascending: true });
     if (!error) setRecords(data);
   };
 
@@ -45,9 +47,18 @@ const CertificateHome = () => {
       .from("registrationmaster_duplicate")
       .update({ certificatestatus: status })
       .in("registrationid", selectedRecords);
+
+    await supabase.from("certificates_duplicate").insert(
+      selectedRecords.map((registrationid) => ({
+        registrationid: registrationid,
+      }))
+    );
     fetchData();
     setSelectedRecords("");
-    document.querySelector('input[type="checkbox"]').checked = false;
+    document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+
     alert("Changes Updated Successfully");
   };
 
@@ -169,9 +180,7 @@ const CertificateHome = () => {
                     data-bs-toggle="modal"
                     data-bs-target="#photoModal"
                     onClick={() => setSelectedPhoto(record.photo_link)}
-                  >
-                      
-                  </span>
+                  ></span>
                 </td>
                 <td>{record.name}</td>
                 <td>{record.eventmaster_duplicate?.eventname || "N/A"}</td>
@@ -298,7 +307,8 @@ const CertificateHome = () => {
                   <img
                     src={editData?.photo_link || ""}
                     alt="Uploaded Photo"
-                    width="80px"
+                    width="100%"
+                    height="250px"
                     className="mt-2"
                   />
                 </>

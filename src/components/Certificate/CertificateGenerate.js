@@ -1,18 +1,26 @@
-import { useEffect, useState } from "react";
+import React, { useState, useRef } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+import certificateImg from "../assets/certificate-nocontent.png"; // path to your certificate template
+import { useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
+// Supabase client setup
 const supabaseUrl = "https://vjvrzdtysyorsntbmrwu.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqdnJ6ZHR5c3lvcnNudGJtcnd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU4MDI5ODEsImV4cCI6MjA1MTM3ODk4MX0.TfZuPp4Dzqu27xhHTpqwXseyumoQmHTHCVJ1oOIsEqM";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Function to fetch data from Supabase
 const fetchData = async () => {
   try {
     let { data, error } = await supabase
       .from("registrationmaster_duplicate")
       .select(
-        "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster_duplicate(eventname),certificatestatus"
-      );
+        "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster_duplicate(eventname),certificatestatus,certificates_duplicate(id)"
+      )
+      .eq("certificatestatus", 1)
+      .order("name", { ascending: true });
 
     if (error) throw error;
     return data;
@@ -24,7 +32,10 @@ const fetchData = async () => {
 
 const CertificateGenerate = () => {
   const [records, setRecords] = useState([]);
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [selectedRecord, setSelectedRecord] = useState(null); // For storing selected record
+  const certificateRef = useRef(); // Reference for certificate template
+
+  // Fetch records when the component is mounted
   useEffect(() => {
     const getData = async () => {
       const data = await fetchData();
@@ -33,21 +44,47 @@ const CertificateGenerate = () => {
     getData();
   }, []);
 
-  const handlePhotoClick = (photoLink) => {
-    setSelectedPhoto(photoLink);
-  };
+  // Format the date
   const formatDate = (date) => {
     const [year, month, day] = date.split("-");
     return `${day}-${month}-${year}`;
   };
+
+  // Function to open modal and set the selected record
+  const handleViewClick = (record) => {
+    setSelectedRecord(record);
+    // You can now use selectedRecord in the modal for rendering
+  };
+
+  // Function to generate and download certificate as PDF
+  const handleDownloadCertificate = () => {
+    if (selectedRecord) {
+      html2canvas(certificateRef.current, { scale: 1.5, useCORS: true }).then(
+        (canvas) => {
+          const imgData = canvas.toDataURL("image/png");
+          const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "px",
+            format: [595, 842],
+          });
+          pdf.addImage(imgData, "PNG", 0, 0, 595, 842);
+          pdf.save(`${selectedRecord.name}_certificate.pdf`);
+        },
+        500
+      );
+    } else {
+      alert("No record selected!");
+    }
+  };
+
   return (
     <>
       <div className="container">
-        <div class="table-responsive">
-          <table class="table table-striped table-hover">
+        <h3 className="head">Certificate Generation</h3>
+        <div className="table-responsive">
+          <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th></th>
                 <th>S.No</th>
                 <th>Photo</th>
                 <th>Name</th>
@@ -56,15 +93,16 @@ const CertificateGenerate = () => {
                 <th>Parent's Name</th>
                 <th>Aadhar No</th>
                 <th>Date Of Birth</th>
-                <th>Certificate Status</th>
+                <th>Certificate Code</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {records.map((record, index) => (
                 <tr key={record.registrationid}>
-                  <td>
+                  {/* <td>
                     <input type="checkbox" value={record.eventid} />
-                  </td>
+                  </td> */}
                   <td>{index + 1}</td>
                   <td>
                     <img
@@ -73,14 +111,6 @@ const CertificateGenerate = () => {
                       height="40px"
                       alt={record.name}
                     />
-                    <br />
-                    <span
-                      data-bs-toggle="modal"
-                      data-bs-target="#exampleModal"
-                      onClick={() => handlePhotoClick(record.photo_link)}
-                    >
-                      View
-                    </span>
                   </td>
                   <td>{record.name}</td>
                   <td>{record.eventmaster_duplicate?.eventname || "N/A"}</td>
@@ -88,58 +118,125 @@ const CertificateGenerate = () => {
                   <td>{record.parentsname}</td>
                   <td>{record.aadhar_no}</td>
                   <td>{record.dob && formatDate(record.dob)}</td>
-                  <td>
+                  <td>AABWR{record.certificates_duplicate?.id || "N/A"}</td>
+                  {/* <td>
                     {record.certificatestatus == 1
                       ? "Not Generated"
                       : "Generated"}
-                  </td>
+                  </td> */}
                   <td>
-                    <td className="d-flex gap-3">
-                      <button className="btn btn-success">Download</button>
-                      <button className="btn btn-primary">View</button>
-                    </td>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => handleViewClick(record)}
+                      data-bs-toggle="modal"
+                      data-bs-target="#certificateModal"
+                    >
+                      View
+                    </button>
+                    {/* <button
+                      className="btn btn-success"
+                      onClick={() => handleDownloadCertificate()}
+                    >
+                      Download
+                    </button> */}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      </div>
 
-        <div
-          class="modal fade"
-          id="exampleModal"
-          tabindex="-1"
-          aria-labelledby="exampleModalLabel"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">
-                  Image
-                </h1>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-
-              <div class="modal-body">
-                <center>
-                  <img src={selectedPhoto} width="80%" alt="Selected" />
-                </center>
-              </div>
-              <div class="modal-footer d-flex justify-content-center">
-                <button
-                  type="button"
-                  class="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-              </div>
+      {/* Modal for displaying the certificate */}
+      <div
+        className="modal fade"
+        id="certificateModal"
+        tabIndex="-1"
+        aria-labelledby="certificateModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="certificateModalLabel">
+                Certificate Preview
+              </h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              {selectedRecord && (
+                <div ref={certificateRef} className="certificate">
+                  <img
+                    src={certificateImg}
+                    alt="Certificate Background"
+                    className="certificate-image"
+                  />
+                  <div className="certificate-content">
+                    <div className="certificate-text-name">
+                      M/S. {selectedRecord.name}
+                    </div>
+                  </div>
+                  <div className="certificate-content">
+                    <div className="certificate-text-content">
+                      {selectedRecord.gender == "Male" ? "S/O" : "D/O"}{" "}
+                      {selectedRecord.parentsname}, has participated in the
+                      event titled{" "}
+                      <span className="span-category">
+                        {" "}
+                        ‘
+                        {selectedRecord.eventmaster_duplicate?.eventname ||
+                          "N/A"}
+                        ’
+                      </span>{" "}
+                      during the outstanding World Record attempt for{" "}
+                      <span className="span-content">
+                        ‘Continuously Performing Silambam for 30 Minutes’
+                      </span>{" "}
+                      , presented by Aasiyan Book of World Records and organized
+                      by Tamilan Takewondo Academy. This record-breaking event
+                      was held on 09
+                      <sup className="th-super">th</sup> February 2025 at
+                      Khairunnaas Nursery & Primary School, Periyakulam.
+                    </div>
+                  </div>
+                  <div className="certificate-content">
+                    <img
+                      src={selectedRecord.photo_link}
+                      alt="Profile"
+                      className="certificate-photo"
+                    />
+                  </div>
+                  <div className="certificate-text-field">
+                    <strong>{selectedRecord.aadhar_no}</strong>
+                  </div>
+                  <div className="certificate-text-code">
+                    <strong>
+                      AABWR{selectedRecord.certificates_duplicate?.id || "N/A"}
+                    </strong>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                className="btn btn-success"
+                onClick={handleDownloadCertificate}
+              >
+                Download Certificate
+              </button>
             </div>
           </div>
         </div>

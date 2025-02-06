@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar/Navbar";
+// import Navbar from "./components/Navbar/Navbar";
 // import About from "./components/About/About";
 // import Certificate from "./components/Certificate/Certificate";
 // import Videos from "./components/Videos/Videos";
@@ -21,6 +21,7 @@ import "aos/dist/aos.js";
 import CertificateHome from "./components/Certificate/CertificateHome";
 import CertificateGenerate from "./components/Certificate/CertificateGenerate";
 import CertificateGenerator from "./components/CertificateGenerator/CertificateGenerator";
+
 
 function App() {
   useEffect(() => {

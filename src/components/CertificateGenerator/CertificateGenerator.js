@@ -14,7 +14,7 @@ const CertificateGenerator = () => {
     certificateCode: "",
     dateOfIssue: "",
     category: "", // Added for select field
-  }); 
+  });
   const certificateRef = useRef();
 
   const handleChange = (e) => {
