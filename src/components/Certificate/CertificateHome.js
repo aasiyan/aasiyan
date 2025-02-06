@@ -47,12 +47,12 @@ const CertificateHome = () => {
       .from("registrationmaster_duplicate")
       .update({ certificatestatus: status })
       .in("registrationid", selectedRecords);
-
-    await supabase.from("certificates_duplicate").insert(
-      selectedRecords.map((registrationid) => ({
-        registrationid: registrationid,
-      }))
-    );
+      for (const registrationid of selectedRecords) {
+        await supabase.from("certificates_duplicate").insert([
+          { registrationid }
+        ]);
+      }
+      
     fetchData();
     setSelectedRecords("");
     document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
@@ -124,7 +124,7 @@ const CertificateHome = () => {
     return `${day}-${month}-${year}`;
   };
   return (
-    <div className="container">
+    <div className="container1">
       <h3 className="head">Certificate Approval</h3>
       <div className="d-flex mb-3 justify-content-around">
         <button
