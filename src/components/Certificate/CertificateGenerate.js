@@ -15,9 +15,9 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const fetchData = async () => {
   try {
     let { data, error } = await supabase
-      .from("registrationmaster_duplicate")
+      .from("registrationmaster")
       .select(
-        "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster_duplicate(eventname),certificatestatus,certificates_duplicate(id)"
+        "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster(eventname),certificatestatus,certificates_duplicate(id)"
       )
       .eq("certificatestatus", 1)
       .order("name", { ascending: true });
@@ -113,7 +113,7 @@ const CertificateGenerate = () => {
                     />
                   </td>
                   <td>{record.name}</td>
-                  <td>{record.eventmaster_duplicate?.eventname || "N/A"}</td>
+                  <td>{record.eventmaster?.eventname || "N/A"}</td>
                   <td>{record.gender}</td>
                   <td>{record.parentsname}</td>
                   <td>{record.aadhar_no}</td>
@@ -189,7 +189,7 @@ const CertificateGenerate = () => {
                       <span className="span-category">
                         {" "}
                         ‘
-                        {selectedRecord.eventmaster_duplicate?.eventname ||
+                        {selectedRecord.eventmaster?.eventname ||
                           "N/A"}
                         ’
                       </span>{" "}

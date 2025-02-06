@@ -20,9 +20,9 @@ const CertificateHome = () => {
 
   const fetchData = async () => {
     let { data, error } = await supabase
-      .from("registrationmaster_duplicate")
+      .from("registrationmaster")
       .select(
-        "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster_duplicate(eventname),certificatestatus"
+        "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster(eventname),certificatestatus"
       )
       .eq("certificatestatus", 0)
       .order("name", { ascending: true });
@@ -31,7 +31,7 @@ const CertificateHome = () => {
 
   const fetchEvents = async () => {
     let { data, error } = await supabase
-      .from("eventmaster_duplicate")
+      .from("eventmaster")
       .select("eventid, eventname");
     if (!error) setEvents(data);
   };
@@ -44,11 +44,11 @@ const CertificateHome = () => {
 
   const updateCertificateStatus = async (status) => {
     await supabase
-      .from("registrationmaster_duplicate")
+      .from("registrationmaster")
       .update({ certificatestatus: status })
       .in("registrationid", selectedRecords);
       for (const registrationid of selectedRecords) {
-        await supabase.from("certificates_duplicate").insert([
+        await supabase.from("certificates").insert([
           { registrationid }
         ]);
       }
@@ -81,7 +81,7 @@ const CertificateHome = () => {
       photo_link,
     } = editData;
     await supabase
-      .from("registrationmaster_duplicate")
+      .from("registrationmaster")
       .update({ name, parentsname, aadhar_no, dob, eventid, photo_link })
       .eq("registrationid", registrationid);
     fetchData();
@@ -183,7 +183,7 @@ const CertificateHome = () => {
                   ></span>
                 </td>
                 <td>{record.name}</td>
-                <td>{record.eventmaster_duplicate?.eventname || "N/A"}</td>
+                <td>{record.eventmaster?.eventname || "N/A"}</td>
                 <td>{record.gender}</td>
                 <td>{record.parentsname}</td>
                 <td>{record.aadhar_no}</td>
