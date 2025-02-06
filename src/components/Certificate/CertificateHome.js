@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import "./CertificateHome.css";
+import { Link } from "react-router-dom";
 const supabaseUrl = "https://vjvrzdtysyorsntbmrwu.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqdnJ6ZHR5c3lvcnNudGJtcnd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU4MDI5ODEsImV4cCI6MjA1MTM3ODk4MX0.TfZuPp4Dzqu27xhHTpqwXseyumoQmHTHCVJ1oOIsEqM";
@@ -47,12 +48,10 @@ const CertificateHome = () => {
       .from("registrationmaster")
       .update({ certificatestatus: status })
       .in("registrationid", selectedRecords);
-      for (const registrationid of selectedRecords) {
-        await supabase.from("certificates").insert([
-          { registrationid }
-        ]);
-      }
-      
+    for (const registrationid of selectedRecords) {
+      await supabase.from("certificate").insert([{ registrationid }]);
+    }
+
     fetchData();
     setSelectedRecords("");
     document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
@@ -124,205 +123,224 @@ const CertificateHome = () => {
     return `${day}-${month}-${year}`;
   };
   return (
-    <div className="container1">
-      <h3 className="head">Certificate Approval</h3>
-      <div className="d-flex mb-3 justify-content-around">
-        <button
-          className="btn btn-success me-2"
-          onClick={() => updateCertificateStatus(1)}
-        >
-          Add to Certificate
-        </button>
-        <button
-          className="btn btn-danger"
-          onClick={() => updateCertificateStatus(9)}
-        >
-          Delete
-        </button>
+    <>
+      <div className="d-flex justify-content-center flex-direction-column gap-10">
+        <p>
+          <Link className="linktext" to="/certificatehome">
+            Certificate Home
+          </Link>
+        </p>
+        <p>
+          <Link className="linktext" to="/certificategeneration">
+            Certificate Approval
+          </Link>
+        </p>
       </div>
+      <div className="container1">
+        <h3 className="head">Certificate Approval</h3>
+        <div className="d-flex mb-3 justify-content-around">
+          <button
+            className="btn btn-success me-2"
+            onClick={() => updateCertificateStatus(1)}
+          >
+            Add to Certificate
+          </button>
+          <button
+            className="btn btn-danger"
+            onClick={() => updateCertificateStatus(9)}
+          >
+            Delete
+          </button>
+        </div>
 
-      <div className="table-responsive">
-        <table className="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th></th>
-              <th>S.No</th>
-              <th>Photo</th>
-              <th>Name</th>
-              <th>Event Name</th>
-              <th>Gender</th>
-              <th>Parent's Name</th>
-              <th>Aadhar No</th>
-              <th>Date Of Birth</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {records.map((record, index) => (
-              <tr key={record.registrationid}>
-                <td>
-                  <input
-                    type="checkbox"
-                    className="clsChk"
-                    onChange={() => handleCheckboxChange(record.registrationid)}
-                  />
-                </td>
-                <td>{index + 1}</td>
-                <td>
-                  <img
-                    src={record.photo_link}
-                    width="40"
-                    height="40"
-                    alt={record.name}
-                  />
-                  <br />
-                  <span
-                    data-bs-toggle="modal"
-                    data-bs-target="#photoModal"
-                    onClick={() => setSelectedPhoto(record.photo_link)}
-                  ></span>
-                </td>
-                <td>{record.name}</td>
-                <td>{record.eventmaster?.eventname || "N/A"}</td>
-                <td>{record.gender}</td>
-                <td>{record.parentsname}</td>
-                <td>{record.aadhar_no}</td>
-                <td>{record.dob && formatDate(record.dob)}</td>
-                <td>
-                  <button
-                    className="btn btn-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editModal"
-                    onClick={() => handleEditClick(record)}
-                  >
-                    Edit
-                  </button>
-                </td>
+        <div className="table-responsive">
+          <table className="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th></th>
+                <th>S.No</th>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Event Name</th>
+                <th>Gender</th>
+                <th>Parent's Name</th>
+                <th>Aadhar No</th>
+                <th>Date Of Birth</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {records.map((record, index) => (
+                <tr key={record.registrationid}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      className="clsChk"
+                      onChange={() =>
+                        handleCheckboxChange(record.registrationid)
+                      }
+                    />
+                  </td>
+                  <td>{index + 1}</td>
+                  <td>
+                    <img
+                      src={record.photo_link}
+                      width="40"
+                      height="40"
+                      alt={record.name}
+                    />
+                    <br />
+                    <span
+                      data-bs-toggle="modal"
+                      data-bs-target="#photoModal"
+                      onClick={() => setSelectedPhoto(record.photo_link)}
+                    ></span>
+                  </td>
+                  <td>{record.name}</td>
+                  <td>{record.eventmaster?.eventname || "N/A"}</td>
+                  <td>{record.gender}</td>
+                  <td>{record.parentsname}</td>
+                  <td>{record.aadhar_no}</td>
+                  <td>{record.dob && formatDate(record.dob)}</td>
+                  <td>
+                    <button
+                      className="btn btn-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editModal"
+                      onClick={() => handleEditClick(record)}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      {/* Photo Modal */}
-      <div
-        className="modal fade"
-        id="photoModal"
-        tabIndex="-1"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Image</h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
+        {/* Photo Modal */}
+        <div
+          className="modal fade"
+          id="photoModal"
+          tabIndex="-1"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Image</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+              <div className="modal-body text-center">
+                <img src={selectedPhoto} width="80%" alt="Selected" />
+              </div>
             </div>
-            <div className="modal-body text-center">
-              <img src={selectedPhoto} width="80%" alt="Selected" />
+          </div>
+        </div>
+
+        {/* Edit Modal */}
+        <div
+          className="modal fade"
+          id="editModal"
+          tabIndex="-1"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Edit Record</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+              <div className="modal-body">
+                {editData && (
+                  <>
+                    <label>Name</label>
+                    <input
+                      type="text"
+                      className="form-control mb-2"
+                      value={editData.name}
+                      onChange={(e) =>
+                        setEditData({ ...editData, name: e.target.value })
+                      }
+                    />
+                    <label>Parent's Name</label>
+                    <input
+                      type="text"
+                      className="form-control mb-2"
+                      value={editData.parentsname}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          parentsname: e.target.value,
+                        })
+                      }
+                    />
+                    <label>Aadhar No</label>
+                    <input
+                      type="text"
+                      className="form-control mb-2"
+                      value={editData.aadhar_no}
+                      onChange={(e) =>
+                        setEditData({ ...editData, aadhar_no: e.target.value })
+                      }
+                    />
+                    <label>Date Of Birth</label>
+                    <input
+                      type="date"
+                      className="form-control mb-2"
+                      value={editData.dob}
+                      onChange={(e) =>
+                        setEditData({ ...editData, dob: e.target.value })
+                      }
+                    />
+                    <label>Event</label>
+                    <select
+                      className="form-control mb-2"
+                      value={editData.eventid}
+                      onChange={(e) =>
+                        setEditData({ ...editData, eventid: e.target.value })
+                      }
+                    >
+                      {events.map((event) => (
+                        <option key={event.eventid} value={event.eventid}>
+                          {event.eventname}
+                        </option>
+                      ))}
+                    </select>
+                    <lable>Photo</lable>
+                    <input
+                      type="file"
+                      className="form-control mb-2"
+                      onChange={handleFileUpload}
+                    />
+                    <img
+                      src={editData?.photo_link || ""}
+                      alt="Uploaded Photo"
+                      width="100%"
+                      height="250px"
+                      className="mt-2"
+                    />
+                  </>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-primary" onClick={handleUpdate}>
+                  Update
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Edit Modal */}
-      <div
-        className="modal fade"
-        id="editModal"
-        tabIndex="-1"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Edit Record</h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-            </div>
-            <div className="modal-body">
-              {editData && (
-                <>
-                  <label>Name</label>
-                  <input
-                    type="text"
-                    className="form-control mb-2"
-                    value={editData.name}
-                    onChange={(e) =>
-                      setEditData({ ...editData, name: e.target.value })
-                    }
-                  />
-                  <label>Parent's Name</label>
-                  <input
-                    type="text"
-                    className="form-control mb-2"
-                    value={editData.parentsname}
-                    onChange={(e) =>
-                      setEditData({ ...editData, parentsname: e.target.value })
-                    }
-                  />
-                  <label>Aadhar No</label>
-                  <input
-                    type="text"
-                    className="form-control mb-2"
-                    value={editData.aadhar_no}
-                    onChange={(e) =>
-                      setEditData({ ...editData, aadhar_no: e.target.value })
-                    }
-                  />
-                  <label>Date Of Birth</label>
-                  <input
-                    type="date"
-                    className="form-control mb-2"
-                    value={editData.dob}
-                    onChange={(e) =>
-                      setEditData({ ...editData, dob: e.target.value })
-                    }
-                  />
-                  <label>Event</label>
-                  <select
-                    className="form-control mb-2"
-                    value={editData.eventid}
-                    onChange={(e) =>
-                      setEditData({ ...editData, eventid: e.target.value })
-                    }
-                  >
-                    {events.map((event) => (
-                      <option key={event.eventid} value={event.eventid}>
-                        {event.eventname}
-                      </option>
-                    ))}
-                  </select>
-                  <lable>Photo</lable>
-                  <input
-                    type="file"
-                    className="form-control mb-2"
-                    onChange={handleFileUpload}
-                  />
-                  <img
-                    src={editData?.photo_link || ""}
-                    alt="Uploaded Photo"
-                    width="100%"
-                    height="250px"
-                    className="mt-2"
-                  />
-                </>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button className="btn btn-primary" onClick={handleUpdate}>
-                Update
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 

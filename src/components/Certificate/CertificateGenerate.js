@@ -4,6 +4,7 @@ import jsPDF from "jspdf";
 import certificateImg from "../assets/certificate-nocontent.png"; // path to your certificate template
 import { useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { Link } from "react-router-dom";
 
 // Supabase client setup
 const supabaseUrl = "https://vjvrzdtysyorsntbmrwu.supabase.co";
@@ -17,7 +18,7 @@ const fetchData = async () => {
     let { data, error } = await supabase
       .from("registrationmaster")
       .select(
-        "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster(eventname),certificatestatus,certificates_duplicate(id)"
+        "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster(eventname),certificatestatus,certificate(id)"
       )
       .eq("certificatestatus", 1)
       .order("name", { ascending: true });
@@ -42,7 +43,7 @@ const CertificateGenerate = () => {
       setRecords(data);
     };
     getData();
-  }, []);
+  },[]);
 
   // Format the date
   const formatDate = (date) => {
@@ -79,6 +80,18 @@ const CertificateGenerate = () => {
 
   return (
     <>
+      <div className="d-flex justify-content-center flex-direction-column gap-10">
+        <p>
+          <Link className="linktext" to="/certificatehome">
+            Certificate Home
+          </Link>
+        </p>
+        <p>
+          <Link className="linktext" to="/certificategeneration">
+            Certificate Approval
+          </Link>
+        </p>
+      </div>
       <div className="container">
         <h3 className="head">Certificate Generation</h3>
         <div className="table-responsive">
@@ -118,7 +131,7 @@ const CertificateGenerate = () => {
                   <td>{record.parentsname}</td>
                   <td>{record.aadhar_no}</td>
                   <td>{record.dob && formatDate(record.dob)}</td>
-                  <td>AABWR{record.certificates_duplicate?.id || "N/A"}</td>
+                  <td>AABWR{record.certificate?.id + 902 || "N/A"}</td>
                   {/* <td>
                     {record.certificatestatus == 1
                       ? "Not Generated"
@@ -188,10 +201,7 @@ const CertificateGenerate = () => {
                       event titled{" "}
                       <span className="span-category">
                         {" "}
-                        ‘
-                        {selectedRecord.eventmaster?.eventname ||
-                          "N/A"}
-                        ’
+                        ‘{selectedRecord.eventmaster?.eventname || "N/A"}’
                       </span>{" "}
                       during the outstanding World Record attempt for{" "}
                       <span className="span-content">
@@ -216,7 +226,7 @@ const CertificateGenerate = () => {
                   </div>
                   <div className="certificate-text-code">
                     <strong>
-                      AABWR{selectedRecord.certificates_duplicate?.id || "N/A"}
+                      AABWR{selectedRecord.certificate?.id + 902 || "N/A"}
                     </strong>
                   </div>
                 </div>
