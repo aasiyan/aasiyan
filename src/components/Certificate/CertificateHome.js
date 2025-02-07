@@ -130,12 +130,12 @@ const CertificateHome = () => {
       <div className="d-flex justify-content-center flex-direction-column gap-10">
         <p>
           <Link className="linktext" to="/certificatehome">
-            Certificate Home
+            Certificate Approval
           </Link>
         </p>
         <p>
           <Link className="linktext" to="/certificategeneration">
-            Certificate Approval
+            Certificate Generation
           </Link>
         </p>
       </div>
