@@ -20,7 +20,6 @@ import "aos/dist/aos.css";
 import "aos/dist/aos.js";
 import CertificateHome from "./components/Certificate/CertificateHome";
 import CertificateGenerate from "./components/Certificate/CertificateGenerate";
-import CertificateGenerator from "./components/CertificateGenerator/CertificateGenerator";
 
 
 function App() {
@@ -50,7 +49,6 @@ function App() {
             path="/certificategeneration"
             element={<CertificateGenerate />}
           />
-          <Route path="/getcertificate" element={<CertificateGenerator />} />
         </Routes>
       </Router>
     </>
