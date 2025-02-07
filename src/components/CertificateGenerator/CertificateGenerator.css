@@ -61,7 +61,7 @@
 }
 .certificate-text-field {
   font-family: "Poltawski Nowy", sans-serif;
-  font-weight: bold;
+  /* font-weight: bold; */
   font-size: 18px;
   color: #14297c;
   margin-top: -238px;
