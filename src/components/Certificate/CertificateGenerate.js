@@ -5,7 +5,7 @@ import certificateImg from "../assets/certificate-nocontent.png"; // path to you
 import { useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { Link } from "react-router-dom";
-import "../../components/CertificateGenerator/CertificateGenerator.module.css"
+import styles  from "../../components/CertificateGenerator/CertificateGenerator.css"
 // Supabase client setup
 const supabaseUrl = "https://vjvrzdtysyorsntbmrwu.supabase.co";
 const supabaseKey =
@@ -94,7 +94,7 @@ const CertificateGenerate = () => {
           </Link>
         </p>
       </div>
-      <div className="container">
+      <div className="container con-style">
         <h3 className="head">Certificate Generation</h3>
         <div className="table-responsive">
           <table className="table table-striped table-hover">
