@@ -77,7 +77,9 @@ const CertificateGenerate = () => {
       alert("No record selected!");
     }
   };
-
+  function capitalizeWords(str) {
+    return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
+}
   return (
     <>
       <div className="d-flex justify-content-center flex-direction-column gap-10">
@@ -125,10 +127,10 @@ const CertificateGenerate = () => {
                       alt={record.name}
                     />
                   </td>
-                  <td>{record.name}</td>
+                  <td>{capitalizeWords(record.name)}</td>
                   <td>{record.eventmaster?.eventname || "N/A"}</td>
                   <td>{record.gender}</td>
-                  <td>{record.parentsname}</td>
+                  <td>{capitalizeWords(record.parentsname)}</td>
                   <td>{record.aadhar_no}</td>
                   <td>{record.dob && formatDate(record.dob)}</td>
                   <td>AABWR{record.certificate?.id + 902 || "N/A"}</td>
@@ -191,13 +193,13 @@ const CertificateGenerate = () => {
                   />
                   <div className="certificate-content">
                     <div className="certificate-text-name">
-                      M/S. {selectedRecord.name}
+                      M/S. {capitalizeWords(selectedRecord.name)}
                     </div>
                   </div>
                   <div className="certificate-content">
                     <div className="certificate-text-content">
                       {selectedRecord.gender == "Male" ? "S/O" : "D/O"}{" "}
-                      {selectedRecord.parentsname}, has participated in the
+                      {capitalizeWords(selectedRecord.parentsname)}, has participated in the
                       event titled{" "}
                       <span className="span-category">
                         {" "}

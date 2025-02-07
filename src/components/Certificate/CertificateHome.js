@@ -122,6 +122,9 @@ const CertificateHome = () => {
     const [year, month, day] = date.split("-");
     return `${day}-${month}-${year}`;
   };
+  function capitalizeWords(str) {
+    return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
+}
   return (
     <>
       <div className="d-flex justify-content-center flex-direction-column gap-10">
@@ -136,7 +139,7 @@ const CertificateHome = () => {
           </Link>
         </p>
       </div>
-      <div className="container1">
+      <div className="container">
         <h3 className="head">Certificate Approval</h3>
         <div className="d-flex mb-3 justify-content-around">
           <button
@@ -196,10 +199,10 @@ const CertificateHome = () => {
                       onClick={() => setSelectedPhoto(record.photo_link)}
                     ></span>
                   </td>
-                  <td>{record.name}</td>
+                  <td>{capitalizeWords(record.name)}</td>
                   <td>{record.eventmaster?.eventname || "N/A"}</td>
                   <td>{record.gender}</td>
-                  <td>{record.parentsname}</td>
+                  <td>{capitalizeWords(record.parentsname)}</td>
                   <td>{record.aadhar_no}</td>
                   <td>{record.dob && formatDate(record.dob)}</td>
                   <td>
