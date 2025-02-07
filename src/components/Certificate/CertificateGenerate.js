@@ -133,7 +133,7 @@ const CertificateGenerate = () => {
                   <td>{capitalizeWords(record.parentsname)}</td>
                   <td>{record.aadhar_no}</td>
                   <td>{record.dob && formatDate(record.dob)}</td>
-                  <td>AABWR{record.certificate?.id + 902 || "N/A"}</td>
+                  <td>AABWR{record.certificate?.id + 792 || "N/A"}</td>
                   {/* <td>
                     {record.certificatestatus == 1
                       ? "Not Generated"
@@ -198,7 +198,7 @@ const CertificateGenerate = () => {
                   </div>
                   <div className="certificate-content">
                     <div className="certificate-text-content">
-                      {selectedRecord.gender == "Male" ? "S/O" : "D/O"}{" "}
+                      {selectedRecord.gender == "Male" ? "S/O." : "D/O."}{" "}
                       {capitalizeWords(selectedRecord.parentsname)}, has participated in the
                       event titled{" "}
                       <span className="span-category">
@@ -228,7 +228,7 @@ const CertificateGenerate = () => {
                   </div>
                   <div className="certificate-text-code">
                     <strong>
-                      AABWR{selectedRecord.certificate?.id + 902 || "N/A"}
+                      AABWR{selectedRecord.certificate?.id + 792 || "N/A"}
                     </strong>
                   </div>
                 </div>
