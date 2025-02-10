@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import "./CertificateHome.css";
 import { Link } from "react-router-dom";
+import CertificateNav from "./CertificateNav";
 const supabaseUrl = "https://vjvrzdtysyorsntbmrwu.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqdnJ6ZHR5c3lvcnNudGJtcnd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU4MDI5ODEsImV4cCI6MjA1MTM3ODk4MX0.TfZuPp4Dzqu27xhHTpqwXseyumoQmHTHCVJ1oOIsEqM";
@@ -13,12 +14,14 @@ const CertificateHome = () => {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [editData, setEditData] = useState(null);
   const [events, setEvents] = useState([]);
-
+  const [selectAll, setSelectAll] = useState(false); 
   useEffect(() => {
     fetchData();
     fetchEvents();
   }, []);
-
+  useEffect(() => {
+    setSelectAll(selectedRecords.length === records.length && records.length > 0);
+  }, [selectedRecords, records]);
   const fetchData = async () => {
     let { data, error } = await supabase
       .from("registrationmaster")
@@ -36,7 +39,15 @@ const CertificateHome = () => {
       .select("eventid, eventname");
     if (!error) setEvents(data);
   };
-
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    if (!selectAll) {
+      const allIds = records.map((record) => record.registrationid);
+      setSelectedRecords(allIds);
+    } else {
+      setSelectedRecords([]);
+    }
+  };
   const handleCheckboxChange = (id) => {
     setSelectedRecords((prev) =>
       prev.includes(id) ? prev.filter((record) => record !== id) : [...prev, id]
@@ -127,18 +138,7 @@ const CertificateHome = () => {
 }
   return (
     <>
-      <div className="d-flex justify-content-center flex-direction-column gap-10">
-        <p>
-          <Link className="linktext" to="/certificatehome">
-            Certificate Approval
-          </Link>
-        </p>
-        <p>
-          <Link className="linktext" to="/certificategeneration">
-            Certificate Generation
-          </Link>
-        </p>
-      </div>
+      <CertificateNav />
       <div className="container">
         <h3 className="head">Certificate Approval</h3>
         <div className="d-flex mb-3 justify-content-around">
@@ -160,7 +160,11 @@ const CertificateHome = () => {
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th></th>
+                <th> <input
+              type="checkbox"
+              checked={selectAll}
+              onChange={handleSelectAll}
+            /></th>
                 <th>S.No</th>
                 <th>Photo</th>
                 <th>Name</th>
@@ -174,11 +178,12 @@ const CertificateHome = () => {
             </thead>
             <tbody>
               {records.map((record, index) => (
-                <tr key={record.registrationid}>
+                <tr  class="align-middle" key={record.registrationid}>
                   <td>
                     <input
                       type="checkbox"
                       className="clsChk"
+                      checked={selectedRecords.includes(record.registrationid)}
                       onChange={() =>
                         handleCheckboxChange(record.registrationid)
                       }

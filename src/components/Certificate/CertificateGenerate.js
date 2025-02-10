@@ -5,7 +5,8 @@ import certificateImg from "../assets/certificate-nocontent.png"; // path to you
 import { useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { Link } from "react-router-dom";
-import styles  from "../../components/CertificateGenerator/CertificateGenerator.css"
+import styles from "../../components/CertificateGenerator/CertificateGenerator.css"
+import CertificateNav from "./CertificateNav";
 // Supabase client setup
 const supabaseUrl = "https://vjvrzdtysyorsntbmrwu.supabase.co";
 const supabaseKey =
@@ -13,38 +14,42 @@ const supabaseKey =
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Function to fetch data from Supabase
-const fetchData = async () => {
-  try {
-    let { data, error } = await supabase
-      .from("registrationmaster")
-      .select(
-        "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster(eventname),certificatestatus,certificate(id)"
-      )
-      .eq("certificatestatus", 1)
-      .order("name", { ascending: true });
 
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return [];
-  }
-};
 
 const CertificateGenerate = () => {
   const [records, setRecords] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null); // For storing selected record
   const certificateRef = useRef(); // Reference for certificate template
-
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedRecords, setSelectedRecords] = useState([]);
   // Fetch records when the component is mounted
   useEffect(() => {
-    const getData = async () => {
-      const data = await fetchData();
-      setRecords(data);
-    };
     getData();
-  },[]);
+  }, []);
+  
+  const getData = async () => {
+    const data = await fetchData();
+    setRecords(data);
+  };
 
+
+  const fetchData = async () => {
+    try {
+      let { data, error } = await supabase
+        .from("registrationmaster")
+        .select(
+          "registrationid,name,aadhar_no,eventid,mobile_no,gender,parentsname,dob,photo_link,eventmaster(eventname),certificatestatus,certificate(id)"
+        )
+        .eq("certificatestatus", 1)
+        .order("name", { ascending: true });
+  
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      return [];
+    }
+  };
   // Format the date
   const formatDate = (date) => {
     const [year, month, day] = date.split("-");
@@ -79,27 +84,66 @@ const CertificateGenerate = () => {
   };
   function capitalizeWords(str) {
     return str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
-}
+  }
+  const handleSelectAll = () => {
+    setSelectAll(!selectAll);
+    if (!selectAll) {
+      const allIds = records.map((record) => record.registrationid);
+      setSelectedRecords(allIds);
+    } else {
+      setSelectedRecords([]);
+    }
+  };
+  const handleCheckboxChange = (id) => {
+    setSelectedRecords((prev) =>
+      prev.includes(id) ? prev.filter((record) => record !== id) : [...prev, id]
+    );
+  };
+  const updateCertificateStatus = async (status) => {
+    await supabase
+      .from("registrationmaster")
+      .update({ certificatestatus: status })
+      .in("registrationid", selectedRecords);
+
+    setSelectedRecords("");
+    document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+
+    alert("Changes Updated Successfully");
+
+    getData();
+
+    // Clear selected records and reset checkboxes
+    setSelectedRecords([]);
+    setSelectAll(false);
+    
+  };
   return (
     <>
-      <div className="d-flex justify-content-center flex-direction-column gap-10">
-        <p>
-          <Link className="linktext" to="/certificatehome">
-            Certificate Approval
-          </Link>
-        </p>
-        <p>
-          <Link className="linktext" to="/certificategeneration">
-            Certificate Generation
-          </Link>
-        </p>
-      </div>
+     <CertificateNav />
+      
       <div className="container con-style">
+      <div className="d-flex mb-3 justify-content-around">
+      <button
+        className="btn btn-danger"
+        onClick={() => updateCertificateStatus(3)}
+      >
+        Completed
+      </button>
+      </div>
         <h3 className="head">Certificate Generation</h3>
         <div className="table-responsive">
           <table className="table table-striped table-hover">
             <thead>
               <tr>
+                <th>
+                  <th> <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                  /></th>
+                </th>
                 <th>S.No</th>
                 <th>Photo</th>
                 <th>Name</th>
@@ -114,10 +158,17 @@ const CertificateGenerate = () => {
             </thead>
             <tbody>
               {records.map((record, index) => (
-                <tr key={record.registrationid}>
-                  {/* <td>
-                    <input type="checkbox" value={record.eventid} />
-                  </td> */}
+                <tr class="align-middle" key={record.registrationid}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      className="clsChk"
+                      checked={selectedRecords.includes(record.registrationid)}
+                      onChange={() =>
+                        handleCheckboxChange(record.registrationid)
+                      }
+                    />
+                  </td>
                   <td>{index + 1}</td>
                   <td>
                     <img
